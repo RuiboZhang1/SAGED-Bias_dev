@@ -12,6 +12,7 @@ import subprocess
 import threading
 import shutil
 import venv
+import yaml
 from pathlib import Path
 from typing import Optional
 
@@ -49,6 +50,7 @@ class NewAppLauncher:
         self.backend_dir = self.project_root / "app_simplified" / "backend"
         self.frontend_dir = self.project_root / "app_simplified" / "frontend"
         self.venv_dir = self.project_root / "venv"
+        self.settings_file = self.project_root / "settings.yaml"
         self.backend_url = "http://localhost:8000"
         self.frontend_url = "http://localhost:3000"
         
@@ -472,6 +474,73 @@ class NewAppLauncher:
         # Step 3: run "npm run dev"
         return self.start_frontend_server()
     
+    def check_settings_file(self) -> bool:
+        """Check if settings.yaml file exists"""
+        print_colored("⚙️ Checking for settings.yaml file...", Colors.OKBLUE)
+        
+        if self.settings_file.exists():
+            print_colored("✅ settings.yaml file found", Colors.OKGREEN)
+            return True
+        else:
+            print_colored("❌ settings.yaml file not found", Colors.WARNING)
+            return False
+    
+    def prompt_for_api_key(self) -> str:
+        """Prompt user for API key input"""
+        print_colored("\n🔑 API Key Configuration Required", Colors.HEADER)
+        print_colored("=" * 50, Colors.HEADER)
+        print_colored("To use the SAGED platform, you need to provide a DASHSCOPE API key.", Colors.OKBLUE)
+        print_colored("This key will be used for both deepseek-r1-distill-qwen-1.5b and qwen-turbo-latest models.", Colors.OKBLUE)
+        print("")
+        
+        while True:
+            api_key = input("Please enter your DASHSCOPE API key (starts with 'sk-'): ").strip()
+            
+            if not api_key:
+                print_colored("❌ API key cannot be empty. Please try again.", Colors.FAIL)
+                continue
+            
+            return api_key
+    
+    def generate_settings_file(self, api_key: str) -> bool:
+        """Generate settings.yaml file with the provided API key"""
+        print_colored("📝 Generating settings.yaml file...", Colors.OKBLUE)
+        
+        settings_content = {
+            'deepseek-r1-distill-qwen-1.5b': {
+                'DASHSCOPE_API_KEY': api_key
+            },
+            'qwen-turbo-latest': {
+                'DASHSCOPE_API_KEY': api_key
+            }
+        }
+        
+        try:
+            with open(self.settings_file, 'w', encoding='utf-8') as f:
+                yaml.dump(settings_content, f, default_flow_style=False, indent=4)
+            
+            print_colored("✅ settings.yaml file generated successfully", Colors.OKGREEN)
+            print_colored(f"📁 File location: {self.settings_file}", Colors.OKCYAN)
+            return True
+            
+        except Exception as e:
+            print_colored(f"❌ Failed to generate settings.yaml: {e}", Colors.FAIL)
+            return False
+    
+    def setup_settings_file(self) -> bool:
+        """Setup settings.yaml file if it doesn't exist"""
+        if not self.check_settings_file():
+            print_colored("🔧 Setting up configuration file...", Colors.HEADER)
+            
+            api_key = self.prompt_for_api_key()
+            
+            if not self.generate_settings_file(api_key):
+                return False
+            
+            print_colored("✅ Configuration setup completed", Colors.OKGREEN)
+        
+        return True
+    
     def run(self):
         """Main execution function"""
         print_banner()
@@ -497,6 +566,12 @@ class NewAppLauncher:
                 # self.cleanup()
                 return
             
+            # Target 3: Setup settings.yaml file
+            if not self.setup_settings_file():
+                print_colored("❌ Failed to setup settings file", Colors.FAIL)
+                self.cleanup()
+                return
+            
             # Success message
             print_colored("\n" + "="*60, Colors.OKGREEN)
             print_colored("🎉 SAGED Platform is running successfully!", Colors.OKGREEN)
@@ -504,6 +579,7 @@ class NewAppLauncher:
             print_colored(f"📊 Backend API: {self.backend_url}", Colors.OKCYAN)
             print_colored(f"📋 API Documentation: {self.backend_url}/docs", Colors.OKCYAN)
             print_colored(f"🌐 Frontend App: {self.frontend_url}", Colors.OKCYAN)
+            print_colored(f"⚙️ Settings File: {self.settings_file}", Colors.OKCYAN)
             print_colored("="*60, Colors.OKGREEN)
             print_colored("💡 Press Ctrl+C to stop all servers", Colors.WARNING)
             print_colored("="*60 + "\n", Colors.OKGREEN)
