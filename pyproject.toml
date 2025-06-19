@@ -1,0 +1,111 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "SAGEDbias"
+dynamic = ["version"]
+description = "LLM bias package with customizable benchmark building and analytical tools"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+keywords = ["LLM", "bias", "benchmarking", "NLP"]
+authors = [{ name = "HolisticAI", email = "research@holisticai.com" }]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+]
+dependencies = [
+  "pandas>=2.0.0",
+  "numpy>=1.22.0",
+  "tqdm>=4.66.4",
+  "requests>=2.32.3",
+  "bs4>=0.0.2",
+  "wikipedia-api>=0.7.0",
+  "nltk>=3.8.1",
+  "scipy>=1.7.3",
+  "scikit-learn>=1.4.0",
+  "spacy>=3.2.1",
+  "transformers>=4.11.3",
+  "sentence-transformers>=3.0.0",
+  "plotly>=6.1.2",
+  "seaborn>=0.13.2",
+  "openai>=1.84.0",
+]
+
+[project.optional-dependencies]
+testing = [
+  "pytest>=8.4.0",
+  "pytest-cov>=6.1.1"
+]
+dev = [
+  "pytest>=8.4.0",
+  "pytest-cov>=6.1.1",
+  "black>=23.0.0",
+  "isort>=5.12.0",
+  "flake8>=6.0.0"
+]
+all = [
+  "pytest>=8.4.0",
+  "pytest-cov>=6.1.1",
+  "black>=23.0.0",
+  "isort>=5.12.0",
+  "flake8>=6.0.0"
+]
+
+[project.urls]
+Documentation = "https://github.com/holistic-ai/SAGED-Bias#readme"
+Issues = "https://github.com/holistic-ai/SAGED-Bias/issues"
+Source = "https://github.com/holistic-ai/SAGED-Bias"
+
+[tool.hatch.version]
+path = "saged/__init__.py"
+pattern = "__version__ = ['\"](?P<version>[^'\"]+)['\"]"
+
+[tool.hatch.envs.default]
+dependencies = [
+  "pandas>=2.0.0",
+  "numpy>=1.22.0",
+  "tqdm>=4.66.4",
+  "requests>=2.32.3",
+  "bs4>=0.0.2",
+  "wikipedia-api>=0.7.0",
+  "nltk>=3.8.1",
+  "scipy>=1.7.3",
+  "scikit-learn>=1.4.0",
+  "spacy>=3.2.1",
+  "transformers>=4.11.3",
+  "sentence-transformers>=3.0.0",
+  "plotly>=5.3.1",
+]
+env-vars = { PYTHONPATH = "." }
+
+[tool.hatch.envs.testing]
+dependencies = [
+  "pandas>=2.0.0",
+  "numpy>=1.22.0",
+  "tqdm>=4.66.4",
+  "requests>=2.32.3",
+  "bs4>=0.0.2",
+  "wikipedia-api>=0.7.0",
+  "nltk>=3.8.1",
+  "scipy>=1.7.3",
+  "scikit-learn>=1.4.0",
+  "spacy>=3.2.1",
+  "transformers>=4.11.3",
+  "sentence-transformers>=3.0.0",
+  "plotly>=5.3.1",
+  "pytest>=7.0",
+  "pytest-cov>=4.0",
+]
+env-vars = { PYTHONPATH = "." }
+
+[tool.hatch.envs.testing.scripts]
+run = ["pytest tests --cache-clear --cov=saged --cov-report=xml"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["saged"]
