@@ -161,11 +161,12 @@ class NewAppLauncher:
         
         try:
             venv_pip = self.get_venv_pip()
+            venv_python = self.get_venv_python()
             
-            # Upgrade pip first
+            # Upgrade pip first (use python -m pip for Windows compatibility)
             print_colored("⬆️ Upgrading pip...", Colors.OKBLUE)
             subprocess.run(
-                [venv_pip, "install", "--upgrade", "pip"],
+                [venv_python, "-m", "pip", "install", "--upgrade", "pip"],
                 check=True,
                 capture_output=True
             )
