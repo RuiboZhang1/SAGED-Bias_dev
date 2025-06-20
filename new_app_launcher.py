@@ -99,7 +99,7 @@ class NewAppLauncher:
             return str(self.venv_dir / "bin" / "pip")
     
     def check_backend_dependencies(self) -> bool:
-        """Check if all backend dependencies are installed"""
+        """Check if all backend dependencies are installed and importable"""
         print_colored("📦 Checking backend dependencies...", Colors.OKBLUE)
         
         req_file = self.backend_dir / "requirements.txt"
@@ -113,20 +113,64 @@ class NewAppLauncher:
             return False
         
         try:
-            # Check using the virtual environment's Python
             venv_python = self.get_venv_python()
             
-            # Read requirements and check each one
+            # Read requirements and extract package names
             with open(req_file, 'r') as f:
                 requirements = [line.strip() for line in f if line.strip() and not line.startswith('#')]
             
-            # Test import of key packages
-            test_imports = [
-                "fastapi",
-                "uvicorn",
-                "pandas",
-                "numpy"
-            ]
+            # Extract package names from requirements and map them to import names
+            def extract_package_name(requirement_line):
+                """Extract package name from requirement line and map to import name if needed"""
+                # Handle URL-based packages (skip them as they're often models)
+                if requirement_line.startswith('http') or '@' in requirement_line:
+                    return None
+                
+                # Extract package name (before any version specifiers)
+                import re
+                package_name = re.split(r'[>=<!]', requirement_line)[0].strip()
+                
+                # Map pip package names to their import names
+                name_mapping = {
+                    'python-multipart': 'multipart',
+                    'python-dotenv': 'dotenv',
+                    'scikit-learn': 'sklearn',
+                    'pyyaml': 'yaml',
+                    'huggingface-hub': 'huggingface_hub'
+                }
+                
+                return name_mapping.get(package_name, package_name)
+            
+            # Build test imports list from requirements
+            test_imports = []
+            for req in requirements:
+                package_name = extract_package_name(req)
+                if package_name and package_name not in test_imports:
+                    test_imports.append(package_name)
+            
+            print_colored(f"🔍 Testing {len(test_imports)} packages from requirements...", Colors.OKBLUE)
+            
+            # Step 1: Check distribution installation (fast check)
+            print_colored("📋 Checking package distributions...", Colors.OKBLUE)
+            missing_distributions = []
+            
+            for req in requirements:
+                if not req.startswith('http') and '@' not in req:
+                    result = subprocess.run(
+                        [venv_python, "-c", f"import pkg_resources; pkg_resources.require('{req}')"],
+                        capture_output=True,
+                        text=True
+                    )
+                    if result.returncode != 0:
+                        missing_distributions.append(req)
+            
+            if missing_distributions:
+                print_colored(f"❌ Missing distributions: {', '.join(missing_distributions)}", Colors.WARNING)
+                return False
+            
+            # Step 2: Test actual importability (critical check)
+            print_colored("🧪 Testing package imports...", Colors.OKBLUE)
+            failed_imports = []
             
             for package in test_imports:
                 result = subprocess.run(
@@ -135,10 +179,14 @@ class NewAppLauncher:
                     text=True
                 )
                 if result.returncode != 0:
-                    print_colored(f"❌ Package {package} not found or not importable", Colors.WARNING)
-                    return False
+                    failed_imports.append(package)
+                    print_colored(f"❌ Package {package} not importable: {result.stderr.strip()}", Colors.WARNING)
             
-            print_colored("✅ All backend dependencies are installed", Colors.OKGREEN)
+            if failed_imports:
+                print_colored(f"❌ Failed imports: {', '.join(failed_imports)}", Colors.FAIL)
+                return False
+            
+            print_colored("✅ All backend dependencies are installed and importable", Colors.OKGREEN)
             return True
                 
         except Exception as e:
@@ -560,7 +608,9 @@ class NewAppLauncher:
             if not self.initialize_backend():
                 print_colored("❌ Failed to initialize backend", Colors.FAIL)
                 return
-            
+        
+            print()
+
             # Target 2: Initialize Frontend
             if not self.initialize_frontend():
                 print_colored("❌ Failed to initialize frontend", Colors.FAIL)
