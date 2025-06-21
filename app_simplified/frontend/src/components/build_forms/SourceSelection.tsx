@@ -37,6 +37,13 @@ const SourceSelection: React.FC<SourceSelectionProps> = ({ config, onConfigChang
         setIsUploading(true);
         setUploadError(null);
         
+        // Check if domain is properly configured before proceeding
+        if (!config.domain || config.domain.trim() === '') {
+            setUploadError('Please confirm the Domain Configuration section first before uploading files.');
+            setIsUploading(false);
+            return;
+        }
+        
         try {
             // First, delete any removed files from the database
             // Find files to delete (in current sources but not in new files)
@@ -50,14 +57,21 @@ const SourceSelection: React.FC<SourceSelectionProps> = ({ config, onConfigChang
                 try {
                     await Promise.all(filesToDelete.map(async (source) => {
                         if (source.uploadedPath) {
+                            // Extract filename from the full path (remove domain prefix)
+                            // uploadedPath format: "domain/timestamp_filename.txt"
+                            const filename = source.uploadedPath.split('/').pop() || source.uploadedPath;
                             await axios.delete(
-                                API_ENDPOINTS.FILES.DELETE(config.domain, source.uploadedPath)
+                                API_ENDPOINTS.FILES.DELETE(config.domain, filename)
                             );
                         }
                     }));
                 } catch (error) {
                     console.error('Error deleting files:', error);
-                    setUploadError('Failed to delete some files. Please try again.');
+                    if (axios.isAxiosError(error) && error.response?.status === 404) {
+                        setUploadError('Some files could not be deleted as they were not found in the database. This may happen if files were already removed or the database was reset.');
+                    } else {
+                        setUploadError('Failed to delete some files. Please try again.');
+                    }
                     return;
                 } finally {
                     setIsDeleting(false);
@@ -93,7 +107,17 @@ const SourceSelection: React.FC<SourceSelectionProps> = ({ config, onConfigChang
             updateSourceConfig(showSourceFinder);
         } catch (error) {
             console.error('Error handling files:', error);
-            setUploadError('Failed to handle files. Please check if the backend server is running and try again.');
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 400 && error.response?.data?.detail?.includes('Only .txt files are allowed')) {
+                    setUploadError('Only .txt files are allowed. Please select text files only.');
+                } else if (error.response?.status === 500 && error.response?.data?.detail?.includes('domain')) {
+                    setUploadError('Please confirm the Domain Configuration section first before uploading files.');
+                } else {
+                    setUploadError('Failed to upload files. Please check if the backend server is running and try again.');
+                }
+            } else {
+                setUploadError('Failed to handle files. Please check if the backend server is running and try again.');
+            }
         } finally {
             setIsUploading(false);
         }
@@ -192,14 +216,14 @@ const SourceSelection: React.FC<SourceSelectionProps> = ({ config, onConfigChang
                             <FileUploadList
                                 files={sources.map(s => s.file)}
                                 onFilesChange={handleFilesChange}
-                                disabled={showSourceFinder || isUploading || isDeleting}
+                                disabled={showSourceFinder || isUploading}
                                 label="Upload Source Files"
                                 emptyMessage="No source files uploaded. Click 'Upload Source Files' to add sources."
                                 accept=".txt"
                             />
-                            {(isUploading || isDeleting) && (
+                            {isUploading && (
                                 <div className="text-sm text-gray-500">
-                                    {isUploading ? 'Uploading files...' : 'Deleting files...'}
+                                    Uploading files...
                                 </div>
                             )}
                             {uploadError && (
@@ -244,16 +268,19 @@ const SourceSelection: React.FC<SourceSelectionProps> = ({ config, onConfigChang
                 )}
 
                 {/* Wikipedia source finder toggle and configuration */}
-                <div className="space-y-4 pt-4 border-t">
+                <div className="space-y-6 pt-6 border-t-2 border-gray-200">
                     <FormSwitch
                         label="Use Wikipedia"
+                        description="Automatically discover and gather related Wikipedia articles for comprehensive research"
                         checked={showSourceFinder}
                         onChange={handleWikipediaToggle}
+                        activeText="Wikipedia Enabled"
+                        inactiveText="Wikipedia Disabled"
                     />
 
                     {/* Wikipedia source finder configuration - only shown when enabled */}
                     {showSourceFinder && (
-                        <div className="pl-6 space-y-4 border-l-2 border-border">
+                        <div className="ml-4 pl-6 space-y-4 border-l-4 border-purple-300 bg-purple-50/20 rounded-r-lg pr-4 py-4">
                             <SourceFinderConfig
                                 config={config}
                                 onConfigChange={onConfigChange}
@@ -263,11 +290,12 @@ const SourceSelection: React.FC<SourceSelectionProps> = ({ config, onConfigChang
                 </div>
 
                 {/* Confirmation button to update the configuration */}
-                <div className="flex justify-end">
+                <div className="flex justify-end pt-6 border-t border-gray-200">
                     <Button
                         onClick={handleConfirm}
-                        variant="default"
-                        className="px-4 py-2"
+                        variant="primary"
+                        size="lg"
+                        className="px-8 py-3 font-semibold shadow-lg"
                     >
                         Confirm Sources
                     </Button>
