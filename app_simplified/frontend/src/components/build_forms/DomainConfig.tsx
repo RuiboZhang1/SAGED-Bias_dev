@@ -17,6 +17,7 @@ interface DomainConfigProps {
 const DomainConfig: React.FC<DomainConfigProps> = ({ config, onConfigChange }) => {
     const [tempConfig, setTempConfig] = useState<DomainBenchmarkConfig>(config);
     const [isConfirmed, setIsConfirmed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [selectedConcept, setSelectedConcept] = useState<string | null>(null);
     const [showKeywordFinder, setShowKeywordFinder] = useState(false);
@@ -54,6 +55,7 @@ const DomainConfig: React.FC<DomainConfigProps> = ({ config, onConfigChange }) =
     // New function to handle editing (unlocking) after confirmation
     const handleEdit = () => {
         setIsConfirmed(false);
+        setIsCollapsed(false);
         setTempConfig(config);
         setError(null);
     };
@@ -62,6 +64,7 @@ const DomainConfig: React.FC<DomainConfigProps> = ({ config, onConfigChange }) =
     const handleCancel = () => {
         setTempConfig(config);
         setIsConfirmed(true);
+        setIsCollapsed(true);
         setError(null);
         setSelectedConcept(null);
         // Reset concept keywords to match the current config
@@ -71,6 +74,13 @@ const DomainConfig: React.FC<DomainConfigProps> = ({ config, onConfigChange }) =
         });
         setConceptKeywords(resetKeywords);
         setShowKeywordFinder(config.shared_config.keyword_finder.require);
+    };
+
+    // Handle clicking on the collapsed header to expand
+    const handleHeaderClick = () => {
+        if (isConfirmed && isCollapsed) {
+            setIsCollapsed(false);
+        }
     };
 
     // Updates multiple config values when confirming changes:
@@ -121,6 +131,7 @@ const DomainConfig: React.FC<DomainConfigProps> = ({ config, onConfigChange }) =
 
         onConfigChange(updatedConfig);
         setIsConfirmed(true);
+        setIsCollapsed(true);
         setError(null);
         setSelectedConcept(null);
     };
@@ -139,11 +150,53 @@ const DomainConfig: React.FC<DomainConfigProps> = ({ config, onConfigChange }) =
         }
     };
 
+    // Create title with confirmation status
+    const getTitle = () => {
+        if (isConfirmed) {
+            return (
+                <div className="flex items-center space-x-2">
+                    <span>Domain Configuration</span>
+                    <div className="flex items-center space-x-1 text-green-600">
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm font-medium">Confirmed</span>
+                    </div>
+                </div>
+            );
+        }
+        return "Set Up Your Topic";
+    };
+
+    const getDescription = () => {
+        if (isConfirmed && isCollapsed) {
+            return (
+                <div className="space-y-1">
+                    <p className="text-sm text-gray-600">Topic: <span className="font-medium">{config.domain}</span></p>
+                    <p className="text-sm text-gray-600">Concepts: <span className="font-medium">{config.concepts.join(', ')}</span></p>
+                </div>
+            );
+        }
+        return "Define the main topic and related concepts you want to explore";
+    };
+
     return (
         <FormCard
-            title="Set Up Your Topic"
-            description="Define the main topic and related concepts you want to explore"
+            title={getTitle()}
+            description={getDescription()}
             className="mb-6"
+            isCollapsed={isCollapsed}
+            onHeaderClick={handleHeaderClick}
+            headerActions={isConfirmed && (
+                <Button 
+                    onClick={handleEdit} 
+                    variant="outline" 
+                    size="sm"
+                    className="ml-auto"
+                >
+                    Modify
+                </Button>
+            )}
         >
             <div className="space-y-8">
                 {error && (
