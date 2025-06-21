@@ -46,19 +46,25 @@ export const ConceptList: React.FC<ConceptListProps> = ({
 
     return (
         <div className="space-y-4">
-            <div className="flex space-x-2">
+            <div className="flex space-x-3">
                 <Input
                     value={newConcept}
                     onChange={(e) => setNewConcept(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Add a concept"
                     disabled={disabled}
-                    className="flex-1"
+                    className="flex-1 placeholder:text-gray-500"
                 />
                 <Button
                     onClick={handleAddConcept}
                     disabled={disabled || !newConcept.trim()}
-                    variant="outline"
+                    variant={newConcept.trim() ? "default" : "outline"}
+                    className={cn(
+                        "px-4 py-2 min-w-[80px]",
+                        newConcept.trim() 
+                            ? "bg-blue-600 hover:bg-blue-700 text-white" 
+                            : "text-gray-600 border-gray-300"
+                    )}
                 >
                     Add
                 </Button>
@@ -95,9 +101,14 @@ export const ConceptList: React.FC<ConceptListProps> = ({
                     ))}
                 </div>
             ) : (
-                <p className="text-sm text-muted-foreground text-center py-2">
-                    No concepts added yet
-                </p>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                    <p className="text-sm text-gray-600 font-medium">
+                        No concepts added yet
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                        Add your first concept above to get started
+                    </p>
+                </div>
             )}
         </div>
     );

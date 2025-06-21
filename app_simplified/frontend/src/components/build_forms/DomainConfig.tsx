@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { DomainBenchmarkConfig } from '../../types/saged_config';
 import { FormCard } from '../ui/form-card';
 import { FormField } from '../ui/form-field';
+import { Input } from '../ui/input';
 import { ConceptList } from '../ui/concept-list';
 import { Button } from '../ui/button';
 import { Alert } from '../ui/alert';
@@ -15,7 +16,7 @@ interface DomainConfigProps {
 
 const DomainConfig: React.FC<DomainConfigProps> = ({ config, onConfigChange }) => {
     const [tempConfig, setTempConfig] = useState<DomainBenchmarkConfig>(config);
-    const [isEditing, setIsEditing] = useState(false);
+    const [isConfirmed, setIsConfirmed] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [selectedConcept, setSelectedConcept] = useState<string | null>(null);
     const [showKeywordFinder, setShowKeywordFinder] = useState(false);
@@ -50,17 +51,26 @@ const DomainConfig: React.FC<DomainConfigProps> = ({ config, onConfigChange }) =
         setConceptKeywords(newConceptKeywords);
     };
 
+    // New function to handle editing (unlocking) after confirmation
     const handleEdit = () => {
-        setIsEditing(true);
+        setIsConfirmed(false);
         setTempConfig(config);
         setError(null);
     };
 
+    // Handle canceling changes and returning to confirmed state
     const handleCancel = () => {
-        setIsEditing(false);
         setTempConfig(config);
+        setIsConfirmed(true);
         setError(null);
         setSelectedConcept(null);
+        // Reset concept keywords to match the current config
+        const resetKeywords: Record<string, string[]> = {};
+        config.concepts.forEach(concept => {
+            resetKeywords[concept] = config.concept_specified_config[concept]?.keyword_finder?.manual_keywords || [concept];
+        });
+        setConceptKeywords(resetKeywords);
+        setShowKeywordFinder(config.shared_config.keyword_finder.require);
     };
 
     // Updates multiple config values when confirming changes:
@@ -110,7 +120,7 @@ const DomainConfig: React.FC<DomainConfigProps> = ({ config, onConfigChange }) =
         };
 
         onConfigChange(updatedConfig);
-        setIsEditing(false);
+        setIsConfirmed(true);
         setError(null);
         setSelectedConcept(null);
     };
@@ -135,35 +145,44 @@ const DomainConfig: React.FC<DomainConfigProps> = ({ config, onConfigChange }) =
             description="Define the main topic and related concepts you want to explore"
             className="mb-6"
         >
-            <div className="space-y-4">
+            <div className="space-y-8">
                 {error && (
-                    <Alert variant="destructive" className="mb-4">
+                    <Alert variant="destructive" className="mb-6">
                         {error}
                     </Alert>
                 )}
 
                 {/* Input for domain */}
-                <FormField
-                    label="Topic Name"
-                    value={isEditing ? tempConfig.domain : config.domain}
-                    onChange={handleDomainNameChange}
-                    placeholder="Enter your main topic"
-                    required
-                    disabled={!isEditing}
-                    description="The main subject or area you want to explore (e.g., 'Artificial Intelligence', 'Climate Change')"
-                />
-
                 <div className="space-y-4">
-                    {/* Input for concepts array */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Key Concepts</label>
-                        <p className="text-sm text-gray-500 mb-2">
-                            Add the main ideas or themes you want to explore within your topic. These will be used to generate relevant content and questions.
+                    <div className="space-y-3">
+                        <label className="text-base font-semibold text-gray-900 block">Topic Name</label>
+                        <Input
+                            value={isConfirmed ? config.domain : tempConfig.domain}
+                            onChange={handleDomainNameChange}
+                            placeholder="Enter your main topic"
+                            required
+                            disabled={isConfirmed}
+                            className="w-full placeholder:text-gray-500"
+                        />
+                        <p className="text-sm text-gray-600">
+                            The main subject or area you want to explore (e.g., 'Artificial Intelligence', 'Climate Change')
                         </p>
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    {/* Input for concepts array */}
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-base font-semibold text-gray-900">Key Concepts</label>
+                            <p className="text-sm text-gray-600">
+                                Add the main ideas or themes you want to explore within your topic. These will be used to generate relevant content and questions.
+                            </p>
+                        </div>
                         <ConceptList
-                            concepts={isEditing ? tempConfig.concepts : config.concepts}
+                            concepts={isConfirmed ? config.concepts : tempConfig.concepts}
                             onChange={handleConceptsChange}
-                            disabled={!isEditing}
+                            disabled={isConfirmed}
                             onConceptClick={handleConceptClick}
                             selectedConcept={selectedConcept}
                         />
@@ -171,10 +190,10 @@ const DomainConfig: React.FC<DomainConfigProps> = ({ config, onConfigChange }) =
 
                     {/* Input for concept-specific keywords */}
                     {selectedConcept && (
-                        <div className="pl-6 space-y-4 border-l-2 border-border">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Related Terms for {selectedConcept}</label>
-                                <p className="text-sm text-gray-500 mb-2">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-4">
+                            <div className="space-y-3">
+                                <label className="text-base font-semibold text-gray-900">Related Terms for "{selectedConcept}"</label>
+                                <p className="text-sm text-gray-600">
                                     Add specific terms or phrases related to this concept. These will help generate more focused and relevant content.
                                 </p>
                                 <ConceptList
@@ -186,39 +205,44 @@ const DomainConfig: React.FC<DomainConfigProps> = ({ config, onConfigChange }) =
                     )}
 
                     {/* Toggle for keyword finder and its configuration */}
-                    <div className="pt-4 border-t">
-                        <FormSwitch
-                            label="Use AI Keyword Assistant"
-                            checked={showKeywordFinder}
-                            onChange={(checked) => setShowKeywordFinder(checked)}
-                            description="Let AI help you discover relevant terms and phrases for your concepts. This can help expand your search and find more comprehensive content."
-                        />
-
-                        {showKeywordFinder && (
-                            <div className="pl-6 mt-4">
-                                <KeywordFinderConfig
-                                    config={tempConfig}
-                                    onConfigChange={setTempConfig}
+                    <div className="pt-6 border-t border-gray-200">
+                        <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                            <div className="space-y-3">
+                                <h3 className="text-base font-semibold text-gray-900">AI Assistance</h3>
+                                <FormSwitch
+                                    label="Use AI Keyword Assistant"
+                                    checked={showKeywordFinder}
+                                    onChange={(checked) => setShowKeywordFinder(checked)}
+                                    description="Let AI help you discover relevant terms and phrases for your concepts. This can help expand your search and find more comprehensive content."
                                 />
                             </div>
-                        )}
+
+                            {showKeywordFinder && (
+                                <div className="pt-4 border-t border-gray-200">
+                                    <KeywordFinderConfig
+                                        config={tempConfig}
+                                        onConfigChange={setTempConfig}
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex justify-end space-x-2 mt-4">
-                    {!isEditing ? (
-                        <Button onClick={handleEdit} variant="outline">
-                            Edit Settings
-                        </Button>
-                    ) : (
+                <div className="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                    {!isConfirmed ? (
                         <>
-                            <Button onClick={handleCancel} variant="outline">
+                            <Button onClick={handleCancel} variant="outline" className="px-6 py-2 text-gray-700 border-gray-300 hover:bg-gray-50">
                                 Cancel
                             </Button>
-                            <Button onClick={handleConfirm} variant="default">
-                                Save Changes
+                            <Button onClick={handleConfirm} variant="default" className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white">
+                                Confirm Settings
                             </Button>
                         </>
+                    ) : (
+                        <Button onClick={handleEdit} variant="outline" className="px-6 py-2 text-gray-700 border-gray-300 hover:bg-gray-50">
+                            Edit Settings
+                        </Button>
                     )}
                 </div>
             </div>
