@@ -136,7 +136,8 @@ class NewAppLauncher:
                     'python-dotenv': 'dotenv',
                     'scikit-learn': 'sklearn',
                     'pyyaml': 'yaml',
-                    'huggingface-hub': 'huggingface_hub'
+                    'huggingface-hub': 'huggingface_hub',
+                    'sentence-transformers': 'sentence_transformers'
                 }
                 
                 return name_mapping.get(package_name, package_name)
