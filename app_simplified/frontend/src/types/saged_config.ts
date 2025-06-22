@@ -131,8 +131,8 @@ export const defaultConfig: DomainBenchmarkConfig = {
             keyword_number: 7,
             hyperlinks_info: [],
             llm_info: {
-                n_run: 20,
-                n_keywords: 20
+                n_run: 10,
+                n_keywords: 5
             },
             max_adjustment: 150,
             embedding_model: "paraphrase-Mpnet-base-v2",

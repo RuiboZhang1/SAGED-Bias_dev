@@ -106,70 +106,83 @@ const PromptAssemblerBranching: React.FC<PromptAssemblerBranchingProps> = ({ con
     }, [useKeywordHelper, conceptPairs]);
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-8">
             {/* Root and Branch concept selection UI */}
-            <div className="flex gap-4 items-end">
-                <div className="flex-1 space-y-2">
-                    <label className="text-sm font-medium">Stem Concept</label>
-                    <p className="text-sm text-gray-500 mb-2">
-                        Select the main concept that will be used as the base for generating variations. This concept will be replaced with related concepts to create diverse perspectives.
-                    </p>
-                    <Select
-                        value={selectedRoot}
-                        onValueChange={handleRootConceptChange}
-                    >
-                        <option value="">Select stem concept</option>
-                        {config.concepts.map((concept) => (
-                            <option key={concept} value={concept}>
-                                {concept}
-                            </option>
-                        ))}
-                    </Select>
-                </div>
+            <div className="bg-white rounded-lg border border-gray-200 p-5">
+                <h4 className="text-base font-semibold text-gray-900 mb-4">Create Term Pairs</h4>
+                
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700">Stem Term</label>
+                            <p className="text-xs text-gray-600 mb-2">
+                                Select the main term that will be used as the base for generating variations.
+                            </p>
+                            <Select
+                                value={selectedRoot}
+                                onValueChange={handleRootConceptChange}
+                            >
+                                <option value="">Select stem term</option>
+                                {config.concepts.map((concept) => (
+                                    <option key={concept} value={concept}>
+                                        {concept}
+                                    </option>
+                                ))}
+                            </Select>
+                        </div>
 
-                <div className="flex-1 space-y-2">
-                    <label className="text-sm font-medium">Branch Concept</label>
-                    <p className="text-sm text-gray-500 mb-2">
-                        Enter a related concept that will replace the stem concept. This helps create alternative viewpoints while maintaining the original context.
-                    </p>
-                    <input
-                        type="text"
-                        value={branchConcept}
-                        onChange={(e) => setBranchConcept(e.target.value)}
-                        placeholder="Enter branch concept"
-                        className="w-full p-2 border rounded-md"
-                    />
-                </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700">Branch Term</label>
+                            <p className="text-xs text-gray-600 mb-2">
+                                Enter a related term that will replace the stem term in variations.
+                            </p>
+                            <input
+                                type="text"
+                                value={branchConcept}
+                                onChange={(e) => setBranchConcept(e.target.value)}
+                                placeholder="Enter branch term"
+                                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+                    </div>
 
-                <Button
-                    onClick={handleAddPair}
-                    disabled={!selectedRoot || !branchConcept}
-                    className="mb-0.5"
-                >
-                    Add Pair
-                </Button>
+                    <div className="flex justify-center pt-2">
+                        <Button
+                            onClick={handleAddPair}
+                            disabled={!selectedRoot || !branchConcept}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                            <span className="text-lg">+</span>
+                            Add Pair
+                        </Button>
+                    </div>
+                </div>
             </div>
 
             {/* Concept pairs list and management UI */}
-            <div className="space-y-2">
-                <label className="text-sm font-medium">Concept Pairs</label>
-                <p className="text-sm text-gray-500 mb-2">
-                    View and manage your concept pairs. Each pair represents a relationship between concepts that will be used to generate variations of your prompts.
-                </p>
+            <div className="space-y-4">
                 <div className="space-y-2">
+                    <h4 className="text-base font-semibold text-gray-900">Term Pairs</h4>
+                    <p className="text-xs text-gray-600">
+                        View and manage your term pairs. Each pair represents a relationship that will be used to generate prompt variations.
+                    </p>
+                </div>
+                
+                <div className="space-y-3">
                     {conceptPairs.map((pair, index) => (
                         <div key={index} className="space-y-2">
-                            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md">
-                                <span className="flex-1">
-                                    <span className="font-medium">{pair.root}</span>
-                                    <span className="mx-2">→</span>
-                                    <span>{pair.branch}</span>
+                            <div className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-md">
+                                <span className="flex-1 text-sm">
+                                    <span className="font-medium text-gray-900">{pair.root}</span>
+                                    <span className="mx-2 text-gray-400">→</span>
+                                    <span className="text-gray-700">{pair.branch}</span>
                                 </span>
                                 <div className="flex gap-2">
                                     <Button
                                         onClick={() => setSelectedPairIndex(selectedPairIndex === index ? null : index)}
                                         variant="outline"
                                         size="sm"
+                                        className="text-xs"
                                     >
                                         {selectedPairIndex === index ? 'Hide Keywords' : 'Show Keywords'}
                                     </Button>
@@ -177,6 +190,7 @@ const PromptAssemblerBranching: React.FC<PromptAssemblerBranchingProps> = ({ con
                                         onClick={() => handleRemovePair(index)}
                                         variant="ghost"
                                         size="sm"
+                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 text-xs"
                                     >
                                         Remove
                                     </Button>
@@ -185,9 +199,9 @@ const PromptAssemblerBranching: React.FC<PromptAssemblerBranchingProps> = ({ con
                             
                             {/* Keyword replacements UI for selected pair */}
                             {selectedPairIndex === index && (
-                                <div className="pl-4 border-l-2 border-border">
-                                    <p className="text-sm text-gray-500 mb-2">
-                                        Configure specific keyword replacements between concepts. This helps maintain context and meaning when generating variations.
+                                <div className="ml-4 pl-4 border-l-2 border-gray-200 bg-gray-50 rounded-r-md p-4">
+                                    <p className="text-xs text-gray-600 mb-3">
+                                        Configure specific keyword replacements between terms. This helps maintain context and meaning when generating variations.
                                     </p>
                                     <KeywordReplacementPair
                                         pairs={pair.keywordReplacements || []}
@@ -200,21 +214,24 @@ const PromptAssemblerBranching: React.FC<PromptAssemblerBranchingProps> = ({ con
                         </div>
                     ))}
                     {conceptPairs.length === 0 && (
-                        <div className="text-sm text-gray-500 italic">
-                            No concept pairs added yet. Add pairs to start generating variations of your prompts.
+                        <div className="text-xs text-gray-500 italic p-4 bg-gray-50 rounded-md text-center">
+                            No term pairs added yet. Add pairs above to start generating prompt variations.
                         </div>
                     )}
                 </div>
             </div>
 
             {/* Keyword helper toggle UI */}
-            <div className="pt-4 border-t">
-                <FormSwitch
-                    label="Use Keyword Helper"
-                    checked={useKeywordHelper}
-                    onChange={handleKeywordHelperChange}
-                    description="Enable AI assistance for suggesting keyword replacements. This helps identify related terms and maintain context when generating variations."
-                />
+            <div className="pt-6 border-t border-gray-200">
+                <div className="space-y-2">
+                    <h4 className="text-base font-semibold text-gray-900">AI Assistant</h4>
+                    <FormSwitch
+                        label="Enable Keyword Helper"
+                        checked={useKeywordHelper}
+                        onChange={handleKeywordHelperChange}
+                        description="Enable AI assistance for suggesting keyword replacements. This helps identify related terms and maintain context when generating variations."
+                    />
+                </div>
             </div>
         </div>
     );

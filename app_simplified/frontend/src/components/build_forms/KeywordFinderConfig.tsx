@@ -78,7 +78,7 @@ const KeywordFinderConfig: React.FC<KeywordFinderConfigProps> = ({ config, onCon
                     ...config.shared_config.keyword_finder,
                     llm_info: {
                         ...config.shared_config.keyword_finder.llm_info,
-                        n_run: parseInt(e.target.value) || 20
+                        n_run: parseInt(e.target.value) || 1
                     },
                     require: true
                 }
@@ -96,7 +96,7 @@ const KeywordFinderConfig: React.FC<KeywordFinderConfigProps> = ({ config, onCon
                     ...config.shared_config.keyword_finder,
                     llm_info: {
                         ...config.shared_config.keyword_finder.llm_info,
-                        n_keywords: parseInt(e.target.value) || 20
+                        n_keywords: parseInt(e.target.value) || 1
                     },
                     require: true
                 }
@@ -128,6 +128,7 @@ const KeywordFinderConfig: React.FC<KeywordFinderConfigProps> = ({ config, onCon
                     <FormField
                         label="Number of Keywords"
                         type="number"
+                        min="0"
                         value={config.shared_config.keyword_finder.keyword_number}
                         onChange={handleKeywordNumberChange}
                         placeholder="Enter number of keywords"
@@ -136,6 +137,7 @@ const KeywordFinderConfig: React.FC<KeywordFinderConfigProps> = ({ config, onCon
                     <FormField
                         label="Candidate Number"
                         type="number"
+                        min="0"
                         value={config.shared_config.keyword_finder.max_adjustment}
                         onChange={handleMaxAdjustmentChange}
                         placeholder="Enter candidate number"
@@ -147,7 +149,8 @@ const KeywordFinderConfig: React.FC<KeywordFinderConfigProps> = ({ config, onCon
                     <FormField
                         label="Number of Keywords"
                         type="number"
-                        value={config.shared_config.keyword_finder.llm_info?.n_keywords || 20}
+                        min="1"
+                        value={config.shared_config.keyword_finder.llm_info?.n_keywords}
                         onChange={handleNKeywordsChange}
                         placeholder="Enter number of keywords"
                     />
@@ -155,7 +158,8 @@ const KeywordFinderConfig: React.FC<KeywordFinderConfigProps> = ({ config, onCon
                     <FormField
                         label="Number of Considerations"
                         type="number"
-                        value={config.shared_config.keyword_finder.llm_info?.n_run || 20}
+                        min="1"
+                        value={config.shared_config.keyword_finder.llm_info?.n_run}
                         onChange={handleNRunChange}
                         placeholder="Enter number of considerations"
                     />
