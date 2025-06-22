@@ -1,7 +1,7 @@
 import requests
 import json
 from typing import Dict, List
-from app_simplified.backend.schemas.build_config import BenchmarkMetadata
+from app.backend.schemas.build_config import BenchmarkMetadata
 
 def test_benchmark_metadata_endpoint():
     """Test the benchmark metadata endpoint"""

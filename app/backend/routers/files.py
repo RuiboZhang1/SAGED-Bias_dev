@@ -1,8 +1,8 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Body
 from typing import List
-from app_simplified.backend.services.file_service import FileService
-from app_simplified.backend.schemas.build_config import DatabaseConfig, FileServiceConfig
-from app_simplified.backend.services.database_service import DatabaseService
+from app.backend.services.file_service import FileService
+from app.backend.schemas.build_config import DatabaseConfig, FileServiceConfig
+from app.backend.services.database_service import DatabaseService
 from pydantic import BaseModel
 
 router = APIRouter(

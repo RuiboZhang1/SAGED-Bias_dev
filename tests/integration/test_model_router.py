@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 import random
-from app_simplified.backend.main import app
+from app.backend.main import app
 
 client = TestClient(app)
 

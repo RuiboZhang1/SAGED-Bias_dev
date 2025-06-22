@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from app_simplified.backend.services.database_service import DatabaseService
-from app_simplified.backend.schemas.build_config import (
+from app.backend.services.database_service import DatabaseService
+from app.backend.schemas.build_config import (
     DomainBenchmarkConfig, BenchmarkResponse,
     KeywordsData, SourceFinderData, ScrapedSentencesData,
     SplitSentencesData, QuestionsData, ReplacementDescriptionData,
     AllDataTiersResponse
 )
-from app_simplified.backend.schemas.run_config import RunBenchmarkConfig, RunBenchmarkResponse
-from app_simplified.backend.database import get_db
-from app_simplified.backend.services.saged_service import SagedService
+from app.backend.schemas.run_config import RunBenchmarkConfig, RunBenchmarkResponse
+from app.backend.database import get_db
+from app.backend.services.saged_service import SagedService
 
 router = APIRouter(
     prefix="/benchmark",

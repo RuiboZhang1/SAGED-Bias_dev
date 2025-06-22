@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict, Any, Optional, List
-from app_simplified.backend.services.database_service import DatabaseService
-from app_simplified.backend.schemas.build_config import BenchmarkMetadata
+from app.backend.services.database_service import DatabaseService
+from app.backend.schemas.build_config import BenchmarkMetadata
 
 router = APIRouter(
     prefix="/db",
