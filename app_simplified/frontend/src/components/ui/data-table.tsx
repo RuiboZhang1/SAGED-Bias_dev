@@ -19,6 +19,7 @@ interface DataFrameFormat {
 interface DataTableProps {
   data: Record<string, any> | DataFrameFormat;
   className?: string;
+  maxHeight?: string | number;
 }
 
 const formatValue = (value: any): React.ReactNode => {
@@ -39,6 +40,12 @@ const formatValue = (value: any): React.ReactNode => {
   return String(value);
 };
 
+const isNumericColumn = (columnName: string): boolean => {
+  return ['index', 'count', 'number', 'id', 'score', 'rating', 'value', 'amount'].some(
+    keyword => columnName.toLowerCase().includes(keyword)
+  );
+};
+
 const isDataFrameFormat = (data: any): data is DataFrameFormat => {
   return data && 
          Array.isArray(data.columns) && 
@@ -47,27 +54,58 @@ const isDataFrameFormat = (data: any): data is DataFrameFormat => {
 };
 
 export const DataTable = React.forwardRef<HTMLDivElement, DataTableProps>(
-  ({ data, className, ...props }, ref) => {
+  ({ data, className, maxHeight = 500, ...props }, ref) => {
     if (isDataFrameFormat(data)) {
       const { columns, data: rows, index } = data;
       
       return (
-        <TableContainer component={Paper} sx={{ mb: 2 }} ref={ref} {...props}>
-          <Table size="small">
+        <TableContainer 
+          component={Paper} 
+          sx={{ 
+            mb: 2, 
+            maxHeight: maxHeight,
+            overflow: 'auto'
+          }} 
+          ref={ref} 
+          {...props}
+        >
+          <Table size="small" stickyHeader>
             <TableHead>
-              <TableRow>
-                <TableCell>Index</TableCell>
+              <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                <TableCell sx={{ 
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem',
+                  textAlign: 'right',
+                  color: '#374151'
+                }}>
+                  Index
+                </TableCell>
                 {columns.map((column) => (
-                  <TableCell key={column}>{column}</TableCell>
+                  <TableCell 
+                    key={column}
+                    sx={{ 
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem',
+                      textAlign: isNumericColumn(column) ? 'right' : 'left',
+                      color: '#374151'
+                    }}
+                  >
+                    {column}
+                  </TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
               {rows.map((row, i) => (
                 <TableRow key={i}>
-                  <TableCell>{index?.[i] ?? i}</TableCell>
+                  <TableCell sx={{ textAlign: 'right' }}>
+                    {index?.[i] ?? i}
+                  </TableCell>
                   {columns.map((column) => (
-                    <TableCell key={`${i}-${column}`}>
+                    <TableCell 
+                      key={`${i}-${column}`}
+                      sx={{ textAlign: isNumericColumn(column) ? 'right' : 'left' }}
+                    >
                       {formatValue(row[column])}
                     </TableCell>
                   ))}
@@ -107,27 +145,58 @@ export const DataTable = React.forwardRef<HTMLDivElement, DataTableProps>(
     const sortedIndices = Array.from(allIndices).sort((a, b) => a - b);
 
     return (
-      <TableContainer component={Paper} sx={{ mb: 2 }} ref={ref} {...props}>
-        <Table size="small">
+      <TableContainer 
+        component={Paper} 
+        sx={{ 
+          mb: 2, 
+          maxHeight: maxHeight,
+          overflow: 'auto'
+        }} 
+        ref={ref} 
+        {...props}
+      >
+        <Table size="small" stickyHeader>
           <TableHead>
-            <TableRow>
-              <TableCell>Index</TableCell>
+            <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+              <TableCell sx={{ 
+                fontWeight: 'bold',
+                fontSize: '0.875rem',
+                textAlign: 'right',
+                color: '#374151'
+              }}>
+                Index
+              </TableCell>
               {Object.keys(parsedData).map((columnName) => (
-                <TableCell key={columnName}>{columnName}</TableCell>
+                <TableCell 
+                  key={columnName}
+                  sx={{ 
+                    fontWeight: 'bold',
+                    fontSize: '0.875rem',
+                    textAlign: isNumericColumn(columnName) ? 'right' : 'left',
+                    color: '#374151'
+                  }}
+                >
+                  {columnName}
+                </TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
             {sortedIndices.map((index) => (
               <TableRow key={index}>
-                <TableCell>{index}</TableCell>
+                <TableCell sx={{ textAlign: 'right' }}>
+                  {index}
+                </TableCell>
                 {Object.keys(parsedData).map((columnName) => {
                   const columnData = parsedData[columnName];
                   const value = typeof columnData === 'object' && columnData !== null
                     ? columnData[index]
                     : columnData;
                   return (
-                    <TableCell key={`${columnName}-${index}`}>
+                    <TableCell 
+                      key={`${columnName}-${index}`}
+                      sx={{ textAlign: isNumericColumn(columnName) ? 'right' : 'left' }}
+                    >
                       {formatValue(value)}
                     </TableCell>
                   );

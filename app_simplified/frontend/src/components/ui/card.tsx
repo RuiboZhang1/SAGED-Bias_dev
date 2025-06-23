@@ -112,9 +112,12 @@ const CollapsibleCard = React.forwardRef<HTMLDivElement, CollapsibleCardProps>(
         </button>
         <div
           className={cn(
-            "transition-all duration-200 ease-in-out",
-            isCollapsed ? "max-h-0 opacity-0" : "max-h-[2000px] opacity-100"
+            "transition-all duration-200 ease-in-out overflow-hidden",
+            isCollapsed ? "max-h-0 opacity-0" : "opacity-100"
           )}
+          style={{
+            maxHeight: isCollapsed ? '0' : 'none'
+          }}
         >
           <CardContent>{children}</CardContent>
         </div>
