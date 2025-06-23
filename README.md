@@ -14,39 +14,20 @@
 
 ## Overview
 
-SAGED-Bias is a comprehensive benchmarking pipeline designed to detect and mitigate bias in large language models. It provides both a powerful Python library and a modern web-based platform for bias analysis, addressing limitations in existing benchmarks such as narrow scope, contamination, and lack of fairness calibration.
-
-The SAGED methodology implements a systematic 5-stage approach:
-1. **Scraping Materials**: Collects and processes benchmark data from various sources
-2. **Assembling Benchmarks**: Creates structured benchmarks with contextual considerations
-3. **Generating Responses**: Produces language model outputs for evaluation
-4. **Extracting Features**: Extracts numerical and textual features from responses
-5. **Diagnosing Bias**: Applies various disparity metrics with baseline comparisons
+SAGED-Bias is a comprehensive benchmarking pipeline designed to detect and mitigate bias in large language models. It provides both a powerful Python library and a modern web-based platform for benchmark building and bias analysis.
 
 ## Quick Start
-
-### Prerequisites
-- **Python 3.10+** with pip
-- **Node.js 16+** with npm
-- **Git** for version control
 
 ### One-Command Setup
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/holistic-ai/SAGED-Bias
 cd SAGED-Bias
 
 # Start the application (automatically handles setup)
 python app_launcher.py
 ```
-
-The `app_launcher.py` script will automatically:
-- Check Python version compatibility
-- Create and configure virtual environment
-- Install all dependencies
-- Configure API keys (if needed)
-- Start both backend (port 8000) and frontend (port 3000) servers
 
 ### Access Points
 - 🌐 **Web Application**: http://localhost:3000
