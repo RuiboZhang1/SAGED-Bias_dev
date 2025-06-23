@@ -5,7 +5,7 @@ This document outlines the complete flow of how source files are processed in th
 ## 1. Frontend Upload Process
 
 ### Source Selection Component
-- Located in `app_simplified/frontend/src/components/build_forms/SourceSelection.tsx`
+- Located in `app/frontend/src/components/build_forms/SourceSelection.tsx`
 - Handles file uploads and concept assignments
 - Key features:
   - File upload interface for .txt files
@@ -22,7 +22,7 @@ This document outlines the complete flow of how source files are processed in th
 ## 2. Backend Processing
 
 ### File Service
-- Located in `app_simplified/backend/services/file_service.py`
+- Located in `app/backend/services/file_service.py`
 - Handles file storage and database operations
 - Key functions:
   - `save_uploaded_file`: Saves file content to database
@@ -30,7 +30,7 @@ This document outlines the complete flow of how source files are processed in th
   - `get_domain_files`: Lists all files for a domain
 
 ### Database Service
-- Located in `app_simplified/backend/services/database_service.py`
+- Located in `app/backend/services/database_service.py`
 - Manages database operations and table creation
 - Key features:
   - Creates domain-specific source text tables

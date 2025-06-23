@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app_simplified.backend.routers import benchmark_router, database_router, model_router
-from app_simplified.backend.database import engine, Base
-from app_simplified.backend.routers.files import router as files_router
+from app.backend.routers import benchmark_router, database_router, model_router
+from app.backend.database import engine, Base
+from app.backend.routers.files import router as files_router
 
 # Create database tables
 Base.metadata.create_all(bind=engine)

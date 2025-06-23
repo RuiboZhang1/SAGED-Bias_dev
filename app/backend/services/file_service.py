@@ -2,7 +2,7 @@ import logging
 from typing import List, Optional, Dict, Any
 from fastapi import UploadFile
 from sqlalchemy import create_engine, text
-from app_simplified.backend.schemas.build_config import DatabaseConfig
+from app.backend.schemas.build_config import DatabaseConfig
 from datetime import datetime
 
 # Configure logging

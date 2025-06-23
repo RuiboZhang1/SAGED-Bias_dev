@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
-from app_simplified.backend.services.saged_service import SagedService
-from app_simplified.backend.schemas.run_config import RunBenchmarkConfig, GenerationConfig, ExtractionConfig, AnalysisConfig
+from app.backend.services.saged_service import SagedService
+from app.backend.schemas.run_config import RunBenchmarkConfig, GenerationConfig, ExtractionConfig, AnalysisConfig
 
 @pytest.mark.asyncio
 async def test_run_benchmark():

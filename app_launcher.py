@@ -47,8 +47,8 @@ class NewAppLauncher:
         self.backend_process: Optional[subprocess.Popen] = None
         self.frontend_process: Optional[subprocess.Popen] = None
         self.project_root = Path(__file__).parent.absolute()
-        self.backend_dir = self.project_root / "app_simplified" / "backend"
-        self.frontend_dir = self.project_root / "app_simplified" / "frontend"
+        self.backend_dir = self.project_root / "app" / "backend"
+        self.frontend_dir = self.project_root / "app" / "frontend"
         self.venv_dir = self.project_root / "venv"
         self.settings_file = self.project_root / "settings.yaml"
         self.backend_url = "http://localhost:8000"
@@ -136,7 +136,8 @@ class NewAppLauncher:
                     'python-dotenv': 'dotenv',
                     'scikit-learn': 'sklearn',
                     'pyyaml': 'yaml',
-                    'huggingface-hub': 'huggingface_hub'
+                    'huggingface-hub': 'huggingface_hub',
+                    'sentence-transformers': 'sentence_transformers'
                 }
                 
                 return name_mapping.get(package_name, package_name)

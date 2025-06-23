@@ -1,4 +1,4 @@
-from app_simplified.backend.services.database_service import DatabaseService
+from app.backend.services.database_service import DatabaseService
 
 def main():
     db = DatabaseService()

@@ -6,7 +6,7 @@ from sqlalchemy import inspect, create_engine
 # Add the project root to Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from app_simplified.backend.services.database_service import DatabaseService
+from app.backend.services.database_service import DatabaseService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

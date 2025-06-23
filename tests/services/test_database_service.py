@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
-from app_simplified.backend.services.database_service import DatabaseService
-from app_simplified.backend.schemas.build_config import BenchmarkMetadata
+from app.backend.services.database_service import DatabaseService
+from app.backend.schemas.build_config import BenchmarkMetadata
 
 @pytest.fixture
 def db_service():

@@ -1,7 +1,7 @@
 import asyncio
 import pandas as pd
-from app_simplified.backend.services.saged_service import SagedService
-from app_simplified.backend.schemas.run_config import RunBenchmarkConfig, GenerationConfig, ExtractionConfig, AnalysisConfig
+from app.backend.services.saged_service import SagedService
+from app.backend.schemas.run_config import RunBenchmarkConfig, GenerationConfig, ExtractionConfig, AnalysisConfig
 
 async def run_manual_benchmark():
     """Manual test for running a benchmark with an existing benchmark and test1 generation function"""
