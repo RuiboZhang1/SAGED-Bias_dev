@@ -438,14 +438,24 @@ class NewAppLauncher:
         if not self.backend_process:
             return
             
+        print_colored("\n📝 Backend Server Logs:", Colors.HEADER)
+        print_colored("=" * 60, Colors.HEADER)
+        
         for line in iter(self.backend_process.stdout.readline, ''):
             if line.strip():
+                # Add timestamp to logs
+                timestamp = time.strftime("%H:%M:%S")
+                
                 if "Uvicorn running on" in line:
-                    print_colored(f"[BACKEND] {line.strip()}", Colors.OKGREEN)
+                    print_colored(f"[{timestamp}][BACKEND] {line.strip()}", Colors.OKGREEN)
                 elif "ERROR" in line.upper():
-                    print_colored(f"[BACKEND] {line.strip()}", Colors.FAIL)
+                    print_colored(f"[{timestamp}][BACKEND] {line.strip()}", Colors.FAIL)
                 elif "WARNING" in line.upper():
-                    print_colored(f"[BACKEND] {line.strip()}", Colors.WARNING)
+                    print_colored(f"[{timestamp}][BACKEND] {line.strip()}", Colors.WARNING)
+                elif "INFO" in line.upper():
+                    print_colored(f"[{timestamp}][BACKEND] {line.strip()}", Colors.OKBLUE)
+                else:
+                    print_colored(f"[{timestamp}][BACKEND] {line.strip()}", Colors.ENDC)
     
     def _monitor_frontend_output(self):
         """Monitor frontend process output"""

@@ -79,7 +79,7 @@ const MetadataRepository: React.FC = () => {
                 defaultCollapsed={true}
                 className="mb-4"
               >
-                <DataTable data={record.data} />
+                <DataTable data={record.data} maxHeight={600} />
               </CollapsibleCard>
             )
           ))}
