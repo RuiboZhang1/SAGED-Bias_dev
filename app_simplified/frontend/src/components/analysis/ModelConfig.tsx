@@ -64,18 +64,22 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ onConfigChange }) => {
   };
 
   const removeConfig = (id: string) => {
+    const configToRemove = configs.find(config => config.id === id);
     setConfigs(configs.filter(config => config.id !== id));
-    const { [id]: removed, ...rest } = confirmedConfigs;
-    setConfirmedConfigs(rest);
+    if (configToRemove) {
+      const { [configToRemove.name]: removed, ...rest } = confirmedConfigs;
+      setConfirmedConfigs(rest);
+    }
   };
 
   const updateConfig = (id: string, field: keyof ModelConfiguration, value: string | boolean) => {
+    const oldConfig = configs.find(config => config.id === id);
     setConfigs(configs.map(config => 
       config.id === id ? { ...config, [field]: value } : config
     ));
     // Remove from confirmed configs when editing
-    if (field !== 'isExpanded') {
-      const { [id]: removed, ...rest } = confirmedConfigs;
+    if (field !== 'isExpanded' && oldConfig) {
+      const { [oldConfig.name]: removed, ...rest } = confirmedConfigs;
       setConfirmedConfigs(rest);
     }
   };
@@ -97,7 +101,7 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ onConfigChange }) => {
 
     setConfirmedConfigs({
       ...confirmedConfigs,
-      [id]: {
+      [config.name]: {  // Use config.name as key instead of id
         model_name: config.modelName,
         system_prompt: config.systemPrompt
       }
@@ -154,7 +158,7 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ onConfigChange }) => {
             )}
 
             {configs.map((config, index) => {
-              const isConfirmed = confirmedConfigs[config.id];
+              const isConfirmed = confirmedConfigs[config.name];
               const displayName = config.name || `Model Configuration ${index + 1}`;
               
               return (
